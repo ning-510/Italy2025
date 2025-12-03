@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🇮🇹 義大利蜜月手帳 2025</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #C8553D; /* 托斯卡尼紅 */
+            --secondary: #588B8B; /* 威尼斯綠 */
+            --bg: #F2E8CF; /* 復古紙張米色 */
+            --paper: #FFFCF2;
+            --text: #2B2D42;
+            --accent: #F4A261;
+            --font-serif: 'Playfair Display', serif;
+            --font-sans: 'Noto Sans TC', sans-serif;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            padding-bottom: 80px; /* Nav bar space */
+            background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23dccca3' fill-opacity='0.4' fill-rule='evenodd'%3E%3Cpath d='M5 0h1v1H5V0zM0 5h1v1H0V5z'/%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        /* Header */
+        header {
+            background: var(--primary);
+            color: #fff;
+            padding: 20px 15px;
+            text-align: center;
+            border-bottom: 4px double #fff;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-family: var(--font-serif);
+            font-size: 1.4rem;
+            letter-spacing: 1px;
+        }
+
+        header p {
+            margin: 5px 0 0;
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        /* Tabs */
+        .content-section {
+            display: none;
+            padding: 15px;
+            animation: fadeIn 0.3s ease;
+        }
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Day Cards */
+        .day-card {
+            background: var(--paper);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .day-header {
+            background: linear-gradient(to right, #fff, #f9f9f9);
+            padding: 15px;
+            border-bottom: 1px dashed #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .day-date {
+            font-family: var(--font-serif);
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        .day-location {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .weather-badge {
+            font-size: 0.75rem;
+            background: #E0E1DD;
+            padding: 3px 8px;
+            border-radius: 10px;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .day-content {
+            padding: 15px;
+            display: none; /* Collapsed by default */
+        }
+        
+        .day-content.open {
+            display: block;
+        }
+
+        .timeline-item {
+            border-left: 2px solid var(--secondary);
+            padding-left: 15px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background: var(--secondary);
+            border-radius: 50%;
+            position: absolute;
+            left: -6px;
+            top: 5px;
+        }
+
+        .section-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #999;
+            margin-bottom: 5px;
+            margin-top: 15px;
+        }
+
+        .highlight-tag {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-right: 5px;
+        }
+
+        .shop-tag {
+            background: #E76F51;
+        }
+
+        .scam-alert {
+            background: #ffe5e5;
+            border: 1px solid #ffcccc;
+            color: #cc0000;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        /* Planner & Wallet */
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: var(--font-sans);
+            background: #fff;
+            font-size: 16px; /* Prevents zoom on iOS */
+        }
+
+        button.btn-primary {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .saved-item {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--accent);
+            position: relative;
+        }
+
+        .delete-btn {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            color: #aaa;
+            cursor: pointer;
+        }
+
+        /* Survival Card (Allergy) */
+        .survival-card {
+            background: #2B2D42;
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 2px solid var(--accent);
+        }
+        .it-text {
+            font-family: var(--font-serif);
+            font-size: 1.2rem;
+            margin: 10px 0;
+            color: var(--accent);
+        }
+
+        /* Nav Bar */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            padding-bottom: max(10px, env(safe-area-inset-bottom));
+        }
+
+        .nav-item {
+            text-align: center;
+            color: #aaa;
+            font-size: 0.7rem;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            font-size: 1.4rem;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Winter Honeymoon</h1>
+    <p>Italy • 2025/12/05 - 12/14</p>
+</header>
+
+<div id="tab-itinerary" class="content-section active">
+    
+    <div class="day-card" onclick="toggleDay(this)">
+        <div class="day-header">
+            <div>
+                <div class="day-date">Day 1 • 12/05 (五)</div>
+                <div class="day-location">台北 ✈️ 杜拜</div>
+            </div>
+            <div class="weather-badge">✈️ 機上</div>
+        </div>
+        <div class="day-content">
+            <div class="timeline-item">
+                <strong>20:00 集合</strong><br>
+                桃園機場第二航廈 阿聯酋櫃台
+            </div>
+            <div class="timeline-item">
+                <strong>23:35 起飛 (EK367)</strong><br>
+                飛行時間約 9 小時 55 分
+            </div>
+            <p class="section-title">餐食</p>
+            <p>晚餐：機上餐食</p>
+        </div>
+    </div>
+
+    <div class="day-card" onclick="toggleDay(this)">
+        <div class="day-header">
+            <div>
+                <div class="day-date">Day 2 • 12/06 (六)</div>
+                <div class="day-location">杜拜 ✈️ 米蘭</div>
+            </div>
+            <div class="weather-badge">☁️ 2°C~8°C</div>
+        </div>
+        <div class="day-content">
+            <div class="timeline-item">
+                <strong>13:10 抵達米蘭</strong><br>
+                前往市區觀光，不拉長途車。
+            </div>
+            <div class="timeline-item">
+                <span class="highlight-tag">必看</span> <strong>米蘭大教堂 & 艾曼紐二世迴廊</strong><br>
+                世界第三大教堂，哥德式建築地標。
+            </div>
+            <div class="scam-alert">
+                ⚠️ <strong>防騙提醒：</strong> 廣場上有「幸運繩黨」與「鴿子飼料黨」，請勿讓陌生人將繩子套在手上或接過玉米粒，會被強索費用。
+            </div>
+            <div class="timeline-item">
+                <span class="highlight-tag shop-tag">購物</span> <strong>文藝復興百貨</strong><br>
+                推薦購買：KIKO彩妝 (米蘭品牌)、Bialetti 摩卡壺。
+            </div>
+            <p class="section-title">住宿</p>
+            <p>UNAHOTELS Malpensa (米蘭)</p>
+        </div>
+    </div>
+
+    <div class="day-card" onclick="toggleDay(this)">
+        <div class="day-header">
+            <div>
+                <div class="day-date">Day 3 • 12/07 (日)</div>
+                <div class="day-location">米蘭 ➝ 維洛納</div>
+            </div>
+            <div class="weather-badge">🌤️ 3°C~9°C</div>
+        </div>
+        <div class="day-content">
+            <div class="timeline-item">
+                <span class="highlight-tag">絕美</span> <strong>馬焦雷湖 (Lake Maggiore)</strong><br>
+                義大利第二大湖，特別安排遊船體驗湖光山色。
+            </div>
+            <div class="timeline-item">
+                <strong>維洛納 (Verona)</strong><br>
+                莎士比亞《羅密歐與茱麗葉》故鄉。參觀圓形競技場(外觀)。
+            </div>
+            <div class="timeline-item">
+                <span class="highlight-tag">蜜月</span> <strong>茱麗葉之家</strong><br>
+                記得去摸銅像的右胸許願愛情長久（雖然人很多！）。
+            </div>
+            <p class="section-title">餐食</p>
+            <p>午：西式風味 / 晚：百年教堂披薩風味</p>
+            <p class="section-title">住宿</p>
+            <p>Best Western CTC Hotel Verona</p>
+        </div>
+    </div>
+
+    <div class="day-card" onclick="toggleDay(this)">
+        <div class="day-header">
+            <div>
+                <div class="day-date">Day 4 • 12/08 (一)</div>
+                <div class="day-location">威尼斯 (Venice)</div>
+            </div>
+            <div class="weather-badge">🌫️ 1°C~7°C</div>
+        </div>
+        <div class="day-content">
+            <div class="timeline-item">
+                <span class="highlight-tag">體驗</span> <strong>貢多拉遊船 (Gondola)</strong><br>
+                5人一艘，穿梭水巷。*天氣冷，搭船請戴帽子圍巾。
+            </div>
+            <div class="timeline-item">
+                <strong>聖馬可廣場 & 巷弄散策</strong><br>
+                包含里阿爾托橋。
+            </div>
+            <div class="timeline-item">
+                <span class="highlight-tag shop-tag">自由時間</span> <strong>單飛時光</strong><br>
+                推薦：Caffè Florian (世界最老咖啡館，稍貴但氣氛好)。<br>
+                伴手禮：威尼斯面具 (找Papier Mâché材質)、玻璃製品(需有Murano認證)。
+            </div>
+            <div class="scam-alert">
+                ⚠️ <strong>注意：</strong> 威尼斯禁止在橋上拖行大型行李。小心橋上扒手。
+            </div>
+            <p class="section-title">餐食</p>
+            <p>午：墨魚麵佐炸海鮮 / 晚：自理 (推薦嘗試 Cichèti 小食)</p>
+            <p class="section-title">住宿</p>
+            <p>Crowne Plaza Padova</p>
+        </div>
+    </div>
+
+    <div class="day-card" onclick="toggleDay(this)">
+        <div class="day-header">
+            <div>
+                <div class="day-date">Day 5 • 12/09 (二)</div>
+                <div class="day-location">佛羅倫斯</div>
+            </div>
+            <div class="weather-badge">🌤️ 2°C~11°C</div>
+        </div>
+        <div class="day-content">
+            <div class="timeline-item">
+                <strong>市區觀光</strong><br>
+                聖母百花大教堂、領主廣場。文藝復興發源地。
+            </div>
+            <div class="timeline-item">
+                <span class="highlight-tag shop-tag">必買</span> <strong>蕾莉歐 (L'Erbolario)</strong><br>
+                百花大教堂旁有專賣店，價格約台灣3-5折。
+            </div>
+             <div class="timeline-item">
+                <span class="highlight-tag shop-tag">皮件</span> <strong>Santa Croce 區</strong><br>
+                佛羅倫斯以皮件聞名，若要買真皮手套/包包可在此尋寶。
+            </div>
+            <p class="section-title">餐食</p>
+            <p>午：丁骨牛排佐紅酒 (不吃牛請提前告知領隊) / 晚：中式料理</p>
+            <p class="section-title">住宿</p>
+            <p>Grand Hotel Croce Di Malta</p>
+        </div>
+    </div>
+
+    <div class="day-card" onclick="toggleDay(this)">
+        <div class="day-header">
+            <div>
+                <div class="day-date">Day 6 • 12/10 (三)</div>
+                <div class="day-location">五漁村 & 比薩</div>
+            </div>
+            <div class="weather-badge">🌊 5°C~12°C</div>
+        </div>
+        <div class="day-content">
+            <div class="timeline-item">
+                <strong>五漁村 (Cinque Terre)</strong><br>
+                搭火車進入，拜訪其中兩個村落。懸崖邊的彩色小屋。
+            </div>
+            <div class="timeline-item">
+                <strong>比薩斜塔 (Pisa)</strong><br>
+                奇蹟廣場建築群。必拍推塔借位照。
+            </div>
+            <div class="scam-alert">
+                ⚠️ <strong>比薩提醒：</strong> 攤販周邊扒手極多，拍照時包包務必背在胸前。
+            </div>
+            <p class="section-title">餐食</p>
+            <p>午：自理 (可買炸海鮮甜筒) / 晚：中式料理</p>
+            <p class="section-title">住宿</p>
+            <p>AC Hotel Pisa</p>
+        </div>
+    </div>
+
+    <div class="day-card" onclick="toggleDay(this)">
+        <div class="day-header">
+            <div>
+                <div class="day-date">Day 7 • 12/11 (四)</div>
+                <div class="day-location">托斯卡尼 ➝ 羅馬</div>
+            </div>
+            <div class="weather-badge">🍇 3°C~10°C</div>
+        </div>
+        <div class="day-content">
+            <div class="timeline-item">
+                <span class="highlight-tag">微醺</span> <strong>酒莊品酒 (Winery)</strong><br>
+                Montepulciano 地區，品嚐舉世聞名的紅酒。
+            </div>
+            <div class="timeline-item">
+                <strong>皮恩薩 (Pienza)</strong><br>
+                教宗的理想城，也是「起司之城」(Pecorino Cheese)。
+            </div>
+            <div class="timeline-item">
+                <strong>前往羅馬</strong>
+            </div>
+            <p class="section-title">餐食</p>
+            <p>午：西式風味 / 晚：中式料理</p>
+            <p class="section-title">住宿</p>
+            <p>Warmthotel Rome (連住兩晚)</p>
+        </div>
+    </div>
+
+    <div class="day-card" onclick="toggleDay(this)">
+        <div class="day-header">
+            <div>
+                <div class="day-date">Day 8 • 12/12 (五)</div>
+                <div class="day-location">羅馬 (Rome)</div>
+            </div>
+            <div class="weather-badge">🏛️ 5°C~13°C</div>
+        </div>
+        <div class="day-content">
+            <div class="timeline-item">
+                <strong>聖彼得大教堂 (梵蒂岡)</strong><br>
+                *注意服裝：不可穿無袖、短裙(冬天應該還好)。
+            </div>
+            <div class="timeline-item">
+                <span class="highlight-tag">贈送</span> <strong>金杯咖啡 (Tazza d'Oro)</strong><br>
+                就在萬神殿旁。必買：咖啡豆 (La Regina)、咖啡豆巧克力。
+            </div>
+            <div class="timeline-item">
+                <strong>市區觀光</strong><br>
+                許願池 (背對丟硬幣)、西班牙廣場 (羅馬假期場景)、鬥獸場 (外觀)。
+            </div>
+             <div class="scam-alert">
+                ⚠️ <strong>羅馬三大騙：</strong> 1.手環黨 2.裝成古羅馬士兵強迫合照收費 3.假好心幫你買地鐵票。
+            </div>
+            <p class="section-title">餐食</p>
+            <p>午：中式料理 / 晚：羅馬小羔羊風味</p>
+        </div>
+    </div>
+
+    <div class="day-card" onclick="toggleDay(this)">
+        <div class="day-header">
+            <div>
+                <div class="day-date">Day 9 • 12/13 (六)</div>
+                <div class="day-location">羅馬 ✈️ 杜拜</div>
+            </div>
+            <div class="weather-badge">🛍️ 最後衝刺</div>
+        </div>
+        <div class="day-content">
+            <div class="timeline-item">
+                <span class="highlight-tag shop-tag">Outlet</span> <strong>Castel Romano Outlet</strong><br>
+                登機前的最後購物，包含 Burberry, Valentino, Ferragamo 等。
+            </div>
+            <div class="timeline-item">
+                <strong>14:55 起飛 (EK098)</strong><br>
+                前往杜拜轉機。
+            </div>
+            <p class="section-title">退稅提醒</p>
+            <p>請將退稅商品放在好拿的地方（可能需海關檢查）。單筆滿155歐元可退稅。</p>
+        </div>
+    </div>
+
+     <div class="day-card" onclick="toggleDay(this)">
+        <div class="day-header">
+            <div>
+                <div class="day-date">Day 10 • 12/14 (日)</div>
+                <div class="day-location">杜拜 ✈️ 台北</div>
+            </div>
+            <div class="weather-badge">🏠 溫暖的家</div>
+        </div>
+        <div class="day-content">
+            <div class="timeline-item">
+                <strong>15:35 抵達桃園</strong><br>
+                帶著滿滿的回憶與戰利品回家。
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="tab-planner" class="content-section">
+    <h2 style="font-family: var(--font-serif); color: var(--primary);">My Planner</h2>
+    <p style="font-size:0.9rem; color:#666;">記錄想去的自由行景點或餐廳</p>
+    
+    <div class="day-card" style="padding:15px;">
+        <div class="input-group">
+            <label>區域 (如: 米蘭, 威尼斯)</label>
+            <select id="plan-area">
+                <option value="米蘭">米蘭 (Milan)</option>
+                <option value="威尼斯">威尼斯 (Venice)</option>
+                <option value="佛羅倫斯">佛羅倫斯 (Florence)</option>
+                <option value="羅馬">羅馬 (Rome)</option>
+                <option value="其他">其他</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label>地點名稱</label>
+            <input type="text" id="plan-name" placeholder="例如: 老橋, 某某餐廳">
+        </div>
+        <div class="input-group">
+            <label>備註 / Google Map 連結</label>
+            <textarea id="plan-note" rows="2" placeholder="貼上網址或筆記..."></textarea>
+        </div>
+        <button class="btn-primary" onclick="addPlan()">加入清單</button>
+    </div>
+
+    <div id="plan-list">
+        </div>
+</div>
+
+<div id="tab-wallet" class="content-section">
+    <h2 style="font-family: var(--font-serif); color: var(--primary);">Tools & Guide</h2>
+    
+    <div class="survival-card">
+        <h3>🚨 過敏溝通卡</h3>
+        <p>點餐時請出示此畫面給服務生</p>
+        <hr style="border:0.5px solid #555; margin: 15px 0;">
+        <p class="it-text">"Sono allergica al grano, alle uova e ai latticini."</p>
+        <p>(我對小麥、雞蛋和乳製品過敏)</p>
+        <p style="font-size: 0.9rem; margin-top:10px; color:#F4A261;">
+            Senza Glutine (無麩質)<br>
+            Senza Uova (無蛋)<br>
+            Senza Latticini (無奶)
+        </p>
+    </div>
+
+    <div class="day-card" style="padding:15px;">
+        <h3>💰 記帳小幫手</h3>
+        <p style="font-size:0.9rem; margin-bottom:15px;">
+            建立一個 Google Form (包含: 金額, 幣別, 類別, 品項)，將連結貼在下方即可快速記帳。
+        </p>
+        <div class="input-group">
+            <input type="text" id="sheet-url" placeholder="貼上您的 Google Form 連結">
+        </div>
+        <button class="btn-primary" onclick="openExpense()">記一筆</button>
+    </div>
+
+    <div class="day-card" style="padding:15px;">
+        <h3>🛍️ 必買清單</h3>
+        <ul style="padding-left: 20px; line-height: 1.6;">
+            <li><strong>超市好物：</strong>Pocket Coffee (爆漿咖啡巧克力)、Baci 巧克力、Marvis 牙膏、Balsamic Vinegar (紅酒醋)。</li>
+            <li><strong>佛羅倫斯：</strong>皮件 (手套、皮夾)、蕾莉歐 (L'Erbolario)。</li>
+            <li><strong>羅馬：</strong>金杯咖啡豆 (Chicchi di caffè)、金杯巧克力。</li>
+            <li><strong>威尼斯：</strong>彩色島蕾絲、Murano 玻璃。</li>
+        </ul>
+    </div>
+</div>
+
+<div class="nav-bar">
+    <div class="nav-item active" onclick="switchTab('itinerary', this)">
+        <span class="nav-icon">📅</span>
+        行程
+    </div>
+    <div class="nav-item" onclick="switchTab('planner', this)">
+        <span class="nav-icon">📍</span>
+        自由行
+    </div>
+    <div class="nav-item" onclick="switchTab('wallet', this)">
+        <span class="nav-icon">🧳</span>
+        百寶箱
+    </div>
+</div>
+
+<script>
+    // Tab Switching
+    function switchTab(tabId, navElement) {
+        document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
+        document.getElementById('tab-' + tabId).classList.add('active');
+        
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        navElement.classList.add('active');
+    }
+
+    // Toggle Day Details
+    function toggleDay(card) {
+        const content = card.querySelector('.day-content');
+        if (content.style.display === "block") {
+            content.style.display = "none";
+        } else {
+            content.style.display = "block";
+        }
+    }
+
+    // Planner Logic (Local Storage)
+    function loadPlans() {
+        const plans = JSON.parse(localStorage.getItem('italy_plans') || '[]');
+        const container = document.getElementById('plan-list');
+        container.innerHTML = '';
+        
+        if (plans.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:#999; margin-top:20px;">尚無行程，快來新增吧！</p>';
+            return;
+        }
+
+        plans.forEach((plan, index) => {
+            const div = document.createElement('div');
+            div.className = 'saved-item';
+            
+            // Check if note is a URL
+            let noteDisplay = plan.note;
+            if(plan.note.includes('http')) {
+                noteDisplay = `<a href="${plan.note}" target="_blank" style="color:var(--primary);">開啟連結/地圖</a>`;
+            }
+
+            div.innerHTML = `
+                <div class="delete-btn" onclick="deletePlan(${index})">✕</div>
+                <div style="font-weight:bold; color:var(--primary);">${plan.area}</div>
+                <div style="font-size:1.1rem; margin:5px 0;">${plan.name}</div>
+                <div style="font-size:0.9rem; color:#666;">${noteDisplay}</div>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function addPlan() {
+        const area = document.getElementById('plan-area').value;
+        const name = document.getElementById('plan-name').value;
+        const note = document.getElementById('plan-note').value;
+
+        if (!name) {
+            alert('請輸入地點名稱');
+            return;
+        }
+
+        const plans = JSON.parse(localStorage.getItem('italy_plans') || '[]');
+        plans.push({ area, name, note });
+        localStorage.setItem('italy_plans', JSON.stringify(plans));
+        
+        document.getElementById('plan-name').value = '';
+        document.getElementById('plan-note').value = '';
+        loadPlans();
+    }
+
+    function deletePlan(index) {
+        if(confirm('確定刪除此行程？')) {
+            const plans = JSON.parse(localStorage.getItem('italy_plans') || '[]');
+            plans.splice(index, 1);
+            localStorage.setItem('italy_plans', JSON.stringify(plans));
+            loadPlans();
+        }
+    }
+
+    // Expense Logic
+    function openExpense() {
+        let url = document.getElementById('sheet-url').value;
+        if (!url) {
+            // Check local storage for previously saved URL
+            url = localStorage.getItem('expense_url');
+        }
+
+        if (!url) {
+            alert('請先貼上您的 Google Form 或 Sheet 連結！');
+            return;
+        }
+
+        // Save for next time
+        localStorage.setItem('expense_url', url);
+        window.open(url, '_blank');
+    }
+
+    // Init
+    document.addEventListener('DOMContentLoaded', () => {
+        loadPlans();
+        const savedUrl = localStorage.getItem('expense_url');
+        if(savedUrl) {
+            document.getElementById('sheet-url').value = savedUrl;
+        }
+    });
+</script>
+
+</body>
+</html>
