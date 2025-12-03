@@ -1,744 +1,924 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🇮🇹 義大利蜜月手帳 2025</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #C8553D; /* 托斯卡尼紅 */
-            --secondary: #588B8B; /* 威尼斯綠 */
-            --bg: #F2E8CF; /* 復古紙張米色 */
-            --paper: #FFFCF2;
-            --text: #2B2D42;
-            --accent: #F4A261;
-            --font-serif: 'Playfair Display', serif;
-            --font-sans: 'Noto Sans TC', sans-serif;
-        }
+import React, { useState, useEffect } from 'react';
+import { 
+  Sun, Cloud, CloudRain, MapPin, Navigation, 
+  Camera, ShoppingBag, Coffee, AlertTriangle, 
+  Train, Plane, Wallet, Plus, Trash2, 
+  ExternalLink, Menu, X, Share2, FileSpreadsheet, 
+  Loader2, Lock, Users, LogIn, Map as MapIcon // 修正：將 Map 重新命名為 MapIcon 避免與 JS 原生 Map 衝突
+} from 'lucide-react';
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+// Firebase Imports
+import { initializeApp } from 'firebase/app';
+import { 
+  getAuth, 
+  signInWithCustomToken, 
+  signInAnonymously, 
+  onAuthStateChanged 
+} from 'firebase/auth';
+import { 
+  getFirestore, 
+  collection, 
+  addDoc, 
+  deleteDoc, 
+  doc, 
+  onSnapshot, 
+  query, 
+  where,
+  serverTimestamp 
+} from 'firebase/firestore';
+
+// --- Firebase Initialization & Auth ---
+const firebaseConfig = JSON.parse(__firebase_config);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+// --- Data & Configuration ---
+
+const tripData = [
+  {
+    day: 1,
+    date: "12/05 (五)",
+    location: "台北 -> 杜拜",
+    weather: { temp: "18°C - 22°C", status: "Cloudy", icon: Cloud },
+    highlights: ["阿聯酋航空", "豪華客機體驗"],
+    itinerary: [
+      { time: "20:00", type: "transport", title: "桃園機場集合", desc: "第二航廈 阿聯酋航空團體櫃台" },
+      { time: "23:00", type: "transport", title: "搭乘 EK367 飛往杜拜", desc: "飛行時間約 9 小時 55 分" },
+    ],
+    tips: [
+      { type: "note", text: "長途飛行建議穿著寬鬆舒適衣物，攜帶頸枕。" },
+      { type: "scam", text: "機場雖然安全，但護照登機證請隨身保管，勿隨意擱置。" }
+    ]
+  },
+  {
+    day: 2,
+    date: "12/06 (六)",
+    location: "杜拜 -> 米蘭",
+    weather: { temp: "4°C - 10°C", status: "Sunny", icon: Sun },
+    highlights: ["米蘭大教堂", "艾曼紐二世迴廊", "米蘭燉飯"],
+    itinerary: [
+      { time: "04:55", type: "transport", title: "抵達杜拜轉機" },
+      { time: "09:05", type: "transport", title: "搭乘 EK205 飛往米蘭" },
+      { time: "13:10", type: "transport", title: "抵達米蘭馬爾彭薩機場" },
+      { time: "下午", type: "spot", title: "米蘭大教堂 (Duomo)", desc: "世界第三大教堂，白色大理石哥德式建築，外觀雄偉典雅。", link: "https://www.google.com/maps/search/?api=1&query=Duomo+di+Milano" },
+      { time: "下午", type: "spot", title: "艾曼紐二世迴廊", desc: "米蘭的大客廳，時尚名牌聚集地。踩金牛座公牛蛋蛋據說會帶來好運！", link: "https://www.google.com/maps/search/?api=1&query=Galleria+Vittorio+Emanuele+II" },
+      { time: "晚餐", type: "food", title: "米蘭燉飯風味料理", desc: "道地番紅花燉飯" },
+    ],
+    stay: "UNAHOTELS MALPENSA (或同級)",
+    mustBuy: ["義大利咖啡粉 (Lavazza/Illy)", "精品 (Gucci/Prada 產地價)", "Kiko 彩妝"],
+    tips: [
+      { type: "scam", text: "【防騙】米蘭大教堂廣場如有黑人強行給你戴幸運繩(手環)，請雙手插口袋快速離開，戴上就會被要錢。" },
+      { type: "scam", text: "【防騙】有人主動給鴿子飼料也要拒絕，拍完照會被索取高額費用。" }
+    ]
+  },
+  {
+    day: 3,
+    date: "12/07 (日)",
+    location: "米蘭 -> 馬焦雷湖 -> 維洛納",
+    weather: { temp: "2°C - 8°C", status: "Cloudy", icon: Cloud },
+    highlights: ["馬焦雷湖遊船", "維洛納圓形競技場", "茱麗葉故居"],
+    itinerary: [
+      { time: "上午", type: "spot", title: "馬焦雷湖 (Lake Maggiore)", desc: "義大利第二大湖，阿爾卑斯山腳下的絕美湖光山色。特別安排遊船體驗。", link: "https://www.google.com/maps/search/?api=1&query=Lake+Maggiore" },
+      { time: "下午", type: "transport", title: "前往維洛納 (Verona)", desc: "約 164KM 車程" },
+      { time: "下午", type: "spot", title: "維洛納圓形競技場", desc: "保存完好的古羅馬競技場，現為歌劇表演場地。", link: "https://www.google.com/maps/search/?api=1&query=Verona+Arena" },
+      { time: "晚餐", type: "food", title: "百年教堂義式披薩", desc: "在改建的教堂中享用披薩" }
+    ],
+    stay: "BEST WESTERN CTC HOTEL VERONA",
+    mustBuy: ["檸檬酒 (Limoncello)", "義大利麵條造型磁鐵"],
+    tips: [
+      { type: "info", text: "維洛納是羅密歐與茱麗葉的故鄉，充滿愛情的氛圍。" }
+    ]
+  },
+  {
+    day: 4,
+    date: "12/08 (一)",
+    location: "維洛納 -> 威尼斯 -> 帕多瓦",
+    weather: { temp: "3°C - 9°C", status: "Rain", icon: CloudRain },
+    highlights: ["貢多拉遊船", "聖馬可廣場", "墨魚麵"],
+    itinerary: [
+      { time: "上午", type: "transport", title: "前往威尼斯", desc: "約 46KM 車程" },
+      { time: "全日", type: "spot", title: "威尼斯本島散策", desc: "聖馬可廣場、總督宮、嘆息橋。特別安排當地導遊導覽巷弄。", link: "https://www.google.com/maps/search/?api=1&query=St+Mark+Square" },
+      { time: "體驗", type: "spot", title: "貢多拉鳳尾船 (Gondola)", desc: "五人一艘，穿梭水巷感受浪漫氛圍。" },
+      { time: "午餐", type: "food", title: "威尼斯墨魚麵佐炸海鮮", desc: "經典必吃，吃完嘴巴會黑黑的喔！" },
+      { time: "下午", type: "free", title: "單飛時光", desc: "自由探索威尼斯小店或享用下午茶" },
+      { time: "晚上", type: "transport", title: "前往帕多瓦", desc: "約 46KM 車程" }
+    ],
+    stay: "CROWNE PLAZA PADOVA",
+    mustBuy: ["威尼斯面具 (裝飾用)", "玻璃製品 (Murano Glass)", "蕾絲製品 (Burano)"],
+    tips: [
+      { type: "scam", text: "【防騙】威尼斯用餐請先確認菜單價格，部分餐廳會有隱藏的桌布費或高額服務費。" },
+      { type: "info", text: "威尼斯路面多橋樑階梯，建議輕便裝備，大型行李通常會寄放在遊覽車上。" }
+    ]
+  },
+  {
+    day: 5,
+    date: "12/09 (二)",
+    location: "帕多瓦 -> 佛羅倫斯 -> 蒙地卡蒂尼",
+    weather: { temp: "5°C - 12°C", status: "Sunny", icon: Sun },
+    highlights: ["聖母百花大教堂", "領主廣場", "佛羅倫斯牛排"],
+    itinerary: [
+      { time: "上午", type: "transport", title: "前往佛羅倫斯", desc: "約 236KM 車程，文藝復興發源地。" },
+      { time: "下午", type: "spot", title: "聖母百花大教堂", desc: "巨大的紅色圓頂是地標。天堂之門、喬托鐘樓皆在旁。", link: "https://www.google.com/maps/search/?api=1&query=Cathedral+of+Santa+Maria+del+Fiore" },
+      { time: "下午", type: "spot", title: "領主廣場", desc: "露天的美術館，海神噴泉與大衛像複製品。", link: "https://www.google.com/maps/search/?api=1&query=Piazza+della+Signoria" },
+      { time: "午餐", type: "food", title: "佛羅倫斯丁骨牛排", desc: "托斯卡尼必吃美食，外焦香內鮮嫩。" },
+      { time: "晚上", type: "transport", title: "前往蒙地卡蒂尼", desc: "溫泉小鎮" }
+    ],
+    stay: "GRAND HOTEL CROCE DI MALTA",
+    mustBuy: ["蕾莉歐 (L'Erbolario) 保養品", "皮件 (The Bridge/小店)", "松露醬"],
+    tips: [
+      { type: "scam", text: "【防騙】佛羅倫斯景點人潮眾多，小心扒手貼身。吉普賽婦女或小孩靠近要特別警覺。" },
+      { type: "buy", text: "聖母百花大教堂旁的蕾莉歐專賣店通常有中文店員，且送試用包很大方！" }
+    ]
+  },
+  {
+    day: 6,
+    date: "12/10 (三)",
+    location: "佛羅倫斯 -> 五漁村 -> 比薩",
+    weather: { temp: "6°C - 11°C", status: "Cloudy", icon: Cloud },
+    highlights: ["五漁村火車遊", "比薩斜塔"],
+    itinerary: [
+      { time: "上午", type: "transport", title: "前往五漁村 (Cinque Terre)", desc: "搭乘火車遊覽懸崖上的繽紛小鎮。" },
+      { time: "活動", type: "spot", title: "五漁村巡禮", desc: "拜訪其中兩個漁村，欣賞地中海美景與彩色房舍。", link: "https://www.google.com/maps/search/?api=1&query=Cinque+Terre" },
+      { time: "下午", type: "transport", title: "前往比薩 (Pisa)", desc: "約 87KM 車程" },
+      { time: "下午", type: "spot", title: "比薩斜塔 & 奇蹟廣場", desc: "世界遺產，必拍推塔照。", link: "https://www.google.com/maps/search/?api=1&query=Leaning+Tower+of+Pisa" },
+    ],
+    stay: "AC HOTEL PISA",
+    mustBuy: ["比薩斜塔造型紀念品", "義大利香料"],
+    tips: [
+      { type: "info", text: "五漁村路面起伏大，請穿著好走的鞋子。" },
+      { type: "scam", text: "【防騙】比薩斜塔周邊有很多流動攤販，價格落差大，記得殺價或直接去正規店面購買。" }
+    ]
+  },
+  {
+    day: 7,
+    date: "12/11 (四)",
+    location: "比薩 -> 托斯卡尼 -> 羅馬",
+    weather: { temp: "4°C - 10°C", status: "Sunny", icon: Sun },
+    highlights: ["托斯卡尼酒莊", "皮恩薩山城", "品酒"],
+    itinerary: [
+      { time: "上午", type: "transport", title: "前往托斯卡尼地區", desc: "享受田園風光" },
+      { time: "體驗", type: "spot", title: "酒莊品酒體驗", desc: "參觀酒莊並品嚐道地葡萄酒 (Chianti/Montepulciano)。" },
+      { time: "下午", type: "spot", title: "皮恩薩 (Pienza)", desc: "教宗的理想城，奧爾恰山谷的珍珠，世界遺產山城。", link: "https://www.google.com/maps/search/?api=1&query=Pienza" },
+      { time: "晚上", type: "transport", title: "前往羅馬", desc: "約 188KM 車程，永恆之城。" }
+    ],
+    stay: "WARMTHOTEL ROME",
+    mustBuy: ["托斯卡尼紅酒 (Chianti)", "羊奶起司 (Pecorino)", "橄欖油"],
+    tips: [
+      { type: "buy", text: "皮恩薩以羊奶起司聞名，喜歡起司的人千萬別錯過試吃。" }
+    ]
+  },
+  {
+    day: 8,
+    date: "12/12 (五)",
+    location: "羅馬全日觀光",
+    weather: { temp: "5°C - 12°C", status: "Sunny", icon: Sun },
+    highlights: ["梵蒂岡", "鬥獸場", "許願池", "金杯咖啡"],
+    itinerary: [
+      { time: "上午", type: "spot", title: "聖彼得大教堂 (梵蒂岡)", desc: "世界最大教堂，米開朗基羅《聖殤》所在地。需安檢排隊。", link: "https://www.google.com/maps/search/?api=1&query=St.+Peter's+Basilica" },
+      { time: "景點", type: "spot", title: "羅馬競技場 (Colosseum)", desc: "古羅馬鬥獸場，在外部參觀拍照。", link: "https://www.google.com/maps/search/?api=1&query=Colosseum" },
+      { time: "下午", type: "spot", title: "特雷維噴泉 (許願池)", desc: "背對池丟硬幣許願重返羅馬。", link: "https://www.google.com/maps/search/?api=1&query=Trevi+Fountain" },
+      { time: "下午", type: "spot", title: "西班牙廣場", desc: "羅馬假期的場景，破船噴泉。" },
+      { time: "體驗", type: "food", title: "金杯咖啡 (Tazza d'Oro)", desc: "特別安排每人一杯，就在萬神殿旁。" },
+      { time: "晚餐", type: "food", title: "羅馬小羔羊風味餐", desc: "羅馬特色料理" }
+    ],
+    stay: "WARMTHOTEL ROME",
+    mustBuy: ["金杯咖啡豆/巧克力球", "Bialetti 摩卡壺", "羅馬競技場磁鐵"],
+    tips: [
+      { type: "scam", text: "【防騙】羅馬治安需最為謹慎。地鐵、公車上扒手極多。許願池人擠人時背包請背前面。" },
+      { type: "scam", text: "【防騙】西班牙廣場附近不要接陌生人遞給你的玫瑰花。" }
+    ]
+  },
+  {
+    day: 9,
+    date: "12/13 (六)",
+    location: "羅馬 -> Outlet -> 機場",
+    weather: { temp: "5°C - 11°C", status: "Cloudy", icon: Cloud },
+    highlights: ["Designer Outlet", "滿載而歸"],
+    itinerary: [
+      { time: "上午", type: "spot", title: "Castel Romano Designer Outlet", desc: "羅馬近郊大型Outlet，Gucci, Burberry, Ferragamo 等品牌。", link: "https://www.google.com/maps/search/?api=1&query=Castel+Romano+Designer+Outlet" },
+      { time: "下午", type: "transport", title: "前往羅馬達文西機場", desc: "辦理退稅與登機手續" },
+      { time: "14:55", type: "transport", title: "搭乘 EK098 飛往杜拜", desc: "帶著戰利品回家" }
+    ],
+    tips: [
+      { type: "info", text: "退稅請預留充足時間，義大利退稅排隊可能很長。單張發票滿155歐元即可退稅。" },
+      { type: "info", text: "手提行李注意液體限制，橄欖油、酒類必須托運。" }
+    ]
+  },
+  {
+    day: 10,
+    date: "12/14 (日)",
+    location: "杜拜 -> 台北",
+    weather: { temp: "24°C", status: "Sunny", icon: Sun },
+    highlights: ["甜蜜返家"],
+    itinerary: [
+      { time: "23:30", type: "transport", title: "抵達杜拜 (前一日)" },
+      { time: "03:40", type: "transport", title: "搭乘 EK366 飛往台北" },
+      { time: "15:35", type: "transport", title: "抵達桃園機場", desc: "旅程圓滿結束" }
+    ],
+    tips: []
+  }
+];
+
+const Tag = ({ type, text }) => {
+  const styles = {
+    scam: "bg-red-50 text-red-700 border-red-200",
+    buy: "bg-amber-50 text-amber-700 border-amber-200",
+    info: "bg-blue-50 text-blue-700 border-blue-200",
+    note: "bg-gray-50 text-gray-700 border-gray-200"
+  };
+  
+  const icons = {
+    scam: <AlertTriangle size={14} className="mr-1" />,
+    buy: <ShoppingBag size={14} className="mr-1" />,
+    info: <Sun size={14} className="mr-1" />,
+    note: <Coffee size={14} className="mr-1" />
+  };
+
+  return (
+    <div className={`text-xs px-2.5 py-1.5 rounded-md border mb-1.5 flex items-start ${styles[type] || styles.info}`}>
+      <span className="mt-0.5 shrink-0">{icons[type]}</span>
+      <span className="leading-relaxed">{text}</span>
+    </div>
+  );
+};
+
+// --- Main App Component ---
+
+export default function ItalyTravelApp() {
+  const [user, setUser] = useState(null);
+  const [activeTab, setActiveTab] = useState('itinerary'); 
+  const [currentDay, setCurrentDay] = useState(1);
+  const [tripId, setTripId] = useState(''); // Shared ID
+  const [isLogin, setIsLogin] = useState(false);
+  
+  // Data State
+  const [expenses, setExpenses] = useState([]);
+  const [customSpots, setCustomSpots] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Expense Form State
+  const [newExpense, setNewExpense] = useState({
+    item: '',
+    category: '美食',
+    amount: '',
+    currency: 'EUR'
+  });
+
+  // Custom Spot Form State
+  const [newSpot, setNewSpot] = useState({
+    name: '',
+    location: '',
+    link: '',
+    note: ''
+  });
+
+  // --- Auth & Data Sync ---
+
+  useEffect(() => {
+    const initAuth = async () => {
+      if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+        await signInWithCustomToken(auth, __initial_auth_token);
+      } else {
+        await signInAnonymously(auth);
+      }
+    };
+    initAuth();
+    
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Listen for data ONLY when tripId is set
+  useEffect(() => {
+    if (!user || !tripId) return;
+    setIsLoading(true);
+
+    // IMPORTANT: Storing in PUBLIC data but filtering by tripId
+    // This allows sharing between different users
+    const expenseQuery = query(
+      collection(db, 'artifacts', appId, 'public', 'data', 'expenses'),
+      where('tripId', '==', tripId)
+      // Note: Removed orderBy to avoid index errors on public queries
+    );
+
+    const unsubExpenses = onSnapshot(expenseQuery, (snapshot) => {
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      // Sort manually in JS
+      data.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+      setExpenses(data);
+      setIsLoading(false);
+    }, (error) => {
+      console.error("Expense Sync Error", error);
+      setIsLoading(false);
+    });
+
+    const spotQuery = query(
+      collection(db, 'artifacts', appId, 'public', 'data', 'spots'),
+      where('tripId', '==', tripId)
+    );
+
+    const unsubSpots = onSnapshot(spotQuery, (snapshot) => {
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      data.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+      setCustomSpots(data);
+    }, (error) => console.error("Spot Sync Error", error));
+
+    return () => {
+      unsubExpenses();
+      unsubSpots();
+    };
+  }, [user, tripId]);
+
+  // --- Handlers ---
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (tripId.trim().length > 0) {
+      setIsLogin(true);
+    }
+  };
+
+  const handleAddExpense = async () => {
+    if (!newExpense.item || !newExpense.amount || !user || !tripId) return;
+    try {
+      await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'expenses'), {
+        ...newExpense,
+        tripId: tripId, // Important: Tag with shared ID
+        createdBy: user.uid,
+        timestamp: serverTimestamp()
+      });
+      setNewExpense({ item: '', category: '美食', amount: '', currency: 'EUR' });
+    } catch (e) {
+      console.error("Error adding expense", e);
+    }
+  };
+
+  const handleDeleteExpense = async (id) => {
+    if (!user) return;
+    try {
+      // Allow deleting any item in the trip (shared control)
+      await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'expenses', id));
+    } catch (e) {
+      console.error("Error deleting expense", e);
+    }
+  };
+
+  const handleAddSpot = async () => {
+    if (!newSpot.name || !user || !tripId) return;
+    try {
+      await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'spots'), {
+        ...newSpot,
+        tripId: tripId,
+        createdBy: user.uid,
+        timestamp: serverTimestamp()
+      });
+      setNewSpot({ name: '', location: '', link: '', note: '' });
+    } catch (e) {
+      console.error("Error adding spot", e);
+    }
+  };
+
+  const handleDeleteSpot = async (id) => {
+    if (!user) return;
+    try {
+      await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'spots', id));
+    } catch (e) {
+      console.error("Error deleting spot", e);
+    }
+  };
+
+  const copyToGoogleSheetFormat = () => {
+    const header = "日期\t分類\t品項\t幣別\t金額\n";
+    const body = expenses.map(e => {
+      const dateStr = e.timestamp ? new Date(e.timestamp.seconds * 1000).toLocaleDateString() : new Date().toLocaleDateString();
+      return `${dateStr}\t${e.category}\t${e.item}\t${e.currency}\t${e.amount}`;
+    }).join("\n");
+    const fullText = header + body;
+    
+    const textArea = document.createElement("textarea");
+    textArea.value = fullText;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    
+    alert("記帳資料已複製！\n請打開【空白的 Google 表格】(或Excel)，點選第一格 (A1) 並直接按「貼上」即可。");
+  };
+
+  const copySpotsToGoogleSheetFormat = () => {
+    const header = "日期\t地區\t名稱\t連結\t備註\n";
+    const body = customSpots.map(s => {
+      const dateStr = s.timestamp ? new Date(s.timestamp.seconds * 1000).toLocaleDateString() : new Date().toLocaleDateString();
+      return `${dateStr}\t${s.location}\t${s.name}\t${s.link}\t${s.note}`;
+    }).join("\n");
+    const fullText = header + body;
+    
+    const textArea = document.createElement("textarea");
+    textArea.value = fullText;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    
+    alert("景點資料已複製！\n請打開【空白的 Google 表格】(或Excel)，點選第一格 (A1) 並直接按「貼上」即可。");
+  };
+
+  const dayData = tripData.find(d => d.day === currentDay);
+  
+  const totalExpenseEUR = expenses
+    .filter(e => e.currency === 'EUR')
+    .reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
+  
+  const totalExpenseAED = expenses
+    .filter(e => e.currency === 'AED')
+    .reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
+
+  // --- Views ---
+
+  const LoginView = () => (
+    <div className="flex flex-col items-center justify-center h-full px-8 text-center animate-fadeIn">
+      <div className="w-20 h-20 bg-terracotta-100 rounded-full flex items-center justify-center mb-6 text-terracotta-600">
+        <Users size={32} />
+      </div>
+      <h2 className="text-2xl font-serif font-bold text-gray-800 mb-2">開始共同旅程</h2>
+      <p className="text-stone-500 text-sm mb-8">
+        請輸入一個您們約定好的<br/>「旅程代碼」 (例如: ITALY2025)
+      </p>
+      
+      <form onSubmit={handleLogin} className="w-full max-w-xs space-y-4">
+        <input 
+          type="text" 
+          placeholder="輸入代碼..." 
+          className="w-full p-4 bg-white border border-stone-200 rounded-xl text-center text-lg font-bold tracking-widest uppercase outline-none focus:ring-2 focus:ring-terracotta-200"
+          value={tripId}
+          onChange={(e) => setTripId(e.target.value)}
+        />
+        <button 
+          type="submit"
+          className="w-full bg-terracotta-600 text-white py-4 rounded-xl font-bold shadow-lg shadow-terracotta-200 hover:bg-terracotta-700 active:scale-95 transition-all flex items-center justify-center gap-2"
+        >
+          <LogIn size={18} /> 進入手帳
+        </button>
+      </form>
+      <p className="text-xs text-stone-400 mt-6">
+        *在另一台裝置輸入相同代碼即可同步資料
+      </p>
+    </div>
+  );
+
+  const ItineraryView = () => (
+    <div className="pb-24">
+      <div className="sticky top-0 z-10 bg-[#fbf7f0] pt-2 pb-3 shadow-sm border-b border-stone-200 overflow-x-auto whitespace-nowrap px-4 no-scrollbar">
+        <div className="flex gap-3">
+          {tripData.map((d) => (
+            <button
+              key={d.day}
+              onClick={() => setCurrentDay(d.day)}
+              className={`flex flex-col items-center justify-center min-w-[4.5rem] h-16 rounded-xl transition-all duration-300 border-2 ${
+                currentDay === d.day 
+                  ? "bg-terracotta-600 border-terracotta-600 text-white shadow-md transform scale-105" 
+                  : "bg-white border-stone-200 text-stone-500 hover:border-terracotta-300"
+              }`}
+            >
+              <span className="text-xs font-medium uppercase tracking-wider">Day</span>
+              <span className="text-xl font-serif font-bold">{d.day}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="px-5 pt-6 animate-fadeIn">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-stone-100 mb-6 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-terracotta-50 rounded-bl-full -mr-10 -mt-10 z-0"></div>
+          
+          <div className="relative z-10">
+            <div className="flex justify-between items-start mb-2">
+              <div>
+                <h2 className="text-2xl font-serif font-bold text-gray-800">{dayData.date}</h2>
+                <div className="flex items-center text-stone-500 text-sm mt-1">
+                  <MapPin size={14} className="mr-1" />
+                  {dayData.location}
+                </div>
+              </div>
+              <div className="flex flex-col items-end">
+                <dayData.weather.icon className="text-terracotta-500 mb-1" size={28} />
+                <span className="font-bold text-gray-700">{dayData.weather.temp}</span>
+                <span className="text-xs text-stone-400">{dayData.weather.status}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {dayData.highlights && (
+          <div className="mb-6">
+            <div className="flex flex-wrap gap-2">
+              {dayData.highlights.map((h, i) => (
+                <span key={i} className="px-3 py-1 bg-olive-100 text-olive-800 text-xs font-bold rounded-full border border-olive-200">
+                  #{h}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="space-y-6">
+          {dayData.itinerary.map((item, idx) => (
+            <div key={idx} className="flex gap-4 group">
+              <div className="flex flex-col items-center">
+                <div className={`w-3 h-3 rounded-full border-2 z-10 ${
+                  item.type === 'transport' ? 'bg-stone-200 border-stone-300' : 
+                  item.type === 'food' ? 'bg-amber-100 border-amber-300' : 
+                  'bg-terracotta-100 border-terracotta-400'
+                }`}></div>
+                {idx !== dayData.itinerary.length - 1 && (
+                  <div className="w-0.5 h-full bg-stone-100 -mt-1 group-last:hidden"></div>
+                )}
+              </div>
+              <div className="flex-1 pb-2">
+                <div className="flex justify-between items-baseline mb-1">
+                  <span className="font-mono text-xs font-bold text-stone-400 bg-stone-50 px-1.5 rounded">{item.time}</span>
+                  {item.type === 'transport' && <Train size={14} className="text-stone-300" />}
+                  {item.type === 'spot' && <Camera size={14} className="text-terracotta-300" />}
+                  {item.type === 'food' && <Coffee size={14} className="text-amber-300" />}
+                </div>
+                <div className={`p-3 rounded-xl border ${
+                  item.type === 'transport' ? 'bg-stone-50 border-stone-100' : 'bg-white border-stone-100 shadow-sm'
+                }`}>
+                  <h4 className="font-bold text-gray-800 flex items-center gap-2">
+                    {item.title}
+                    {item.link && (
+                      <a href={item.link} target="_blank" rel="noreferrer" className="text-blue-400 hover:text-blue-600">
+                        <ExternalLink size={12} />
+                      </a>
+                    )}
+                  </h4>
+                  {item.desc && <p className="text-sm text-stone-600 mt-1 leading-relaxed">{item.desc}</p>}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {dayData.stay && (
+          <div className="mt-8 bg-blue-50 p-4 rounded-xl border border-blue-100 flex items-start gap-3">
+            <div className="bg-white p-2 rounded-full shadow-sm text-blue-500">
+              <Sun size={20} className="fill-current" /> 
+            </div>
+            <div>
+              <h5 className="text-xs font-bold text-blue-400 uppercase tracking-wide mb-1">Accommodation</h5>
+              <p className="font-serif font-bold text-blue-900">{dayData.stay}</p>
+            </div>
+          </div>
+        )}
+
+        {(dayData.mustBuy || dayData.tips.length > 0) && (
+          <div className="mt-8">
+            <h3 className="text-center font-serif text-xl italic text-stone-400 mb-4">- Traveler's Notes -</h3>
+            
+            {dayData.mustBuy && (
+              <div className="mb-4 bg-white p-4 rounded-xl border border-dashed border-terracotta-300 relative">
+                 <div className="absolute -top-3 left-4 bg-[#fbf7f0] px-2 text-terracotta-600 font-bold text-xs flex items-center">
+                   <ShoppingBag size={12} className="mr-1"/> 今日必買
+                 </div>
+                 <ul className="text-sm text-gray-700 space-y-1 mt-1 list-disc list-inside marker:text-terracotta-400">
+                   {dayData.mustBuy.map((item, i) => <li key={i}>{item}</li>)}
+                 </ul>
+              </div>
+            )}
+
+            {dayData.tips.map((tip, i) => (
+              <Tag key={i} type={tip.type} text={tip.text} />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const ExpensesView = () => (
+    <div className="px-5 pt-6 pb-24 animate-fadeIn">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-serif font-bold text-gray-800 flex items-center gap-2">
+          <Wallet className="text-terracotta-500" />
+          旅行記帳
+        </h2>
         
-        body {
-            font-family: var(--font-sans);
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 0;
-            padding-bottom: 80px; /* Nav bar space */
-            background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23dccca3' fill-opacity='0.4' fill-rule='evenodd'%3E%3Cpath d='M5 0h1v1H5V0zM0 5h1v1H0V5z'/%3E%3C/g%3E%3C/svg%3E");
-        }
+        <button 
+          onClick={copyToGoogleSheetFormat}
+          className="flex items-center gap-1 text-xs bg-green-100 text-green-700 px-3 py-1.5 rounded-full font-bold hover:bg-green-200 transition-colors"
+        >
+          <FileSpreadsheet size={14} /> 匯出 Google 表格
+        </button>
+        
+      </div>
 
-        /* Header */
-        header {
-            background: var(--primary);
-            color: #fff;
-            padding: 20px 15px;
-            text-align: center;
-            border-bottom: 4px double #fff;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
+      <div className="grid grid-cols-2 gap-4 mb-8">
+        <div className="bg-white p-4 rounded-xl shadow-sm border border-stone-100">
+          <span className="text-xs text-stone-400 uppercase">Total (EUR)</span>
+          <div className="text-2xl font-bold text-gray-800 mt-1">€{totalExpenseEUR.toFixed(2)}</div>
+        </div>
+        <div className="bg-white p-4 rounded-xl shadow-sm border border-stone-100">
+          <span className="text-xs text-stone-400 uppercase">Total (AED)</span>
+          <div className="text-2xl font-bold text-gray-800 mt-1">{totalExpenseAED.toFixed(2)} AED</div>
+        </div>
+      </div>
 
-        header h1 {
-            margin: 0;
-            font-family: var(--font-serif);
-            font-size: 1.4rem;
-            letter-spacing: 1px;
-        }
+      <div className="bg-white p-5 rounded-2xl shadow-sm border border-stone-100 mb-8">
+        <h3 className="font-bold text-gray-700 mb-4 text-sm">新增消費</h3>
+        <div className="space-y-3">
+          <input 
+            type="text" 
+            placeholder="品項 (如: 冰淇淋)" 
+            className="w-full p-3 bg-stone-50 rounded-lg text-sm outline-none focus:ring-2 focus:ring-terracotta-200 transition-all"
+            value={newExpense.item}
+            onChange={(e) => setNewExpense({...newExpense, item: e.target.value})}
+          />
+          <div className="flex gap-3">
+            <select 
+              className="flex-1 p-3 bg-stone-50 rounded-lg text-sm outline-none"
+              value={newExpense.category}
+              onChange={(e) => setNewExpense({...newExpense, category: e.target.value})}
+            >
+              <option>美食</option>
+              <option>購物</option>
+              <option>伴手禮</option>
+              <option>超市</option>
+              <option>交通</option>
+            </select>
+            <select 
+              className="w-24 p-3 bg-stone-50 rounded-lg text-sm outline-none"
+              value={newExpense.currency}
+              onChange={(e) => setNewExpense({...newExpense, currency: e.target.value})}
+            >
+              <option value="EUR">€ EUR</option>
+              <option value="AED">AED</option>
+            </select>
+          </div>
+          <input 
+            type="number" 
+            placeholder="金額" 
+            className="w-full p-3 bg-stone-50 rounded-lg text-sm outline-none focus:ring-2 focus:ring-terracotta-200 transition-all"
+            value={newExpense.amount}
+            onChange={(e) => setNewExpense({...newExpense, amount: e.target.value})}
+          />
+          <button 
+            onClick={handleAddExpense}
+            className="w-full bg-terracotta-600 text-white py-3 rounded-lg font-bold text-sm hover:bg-terracotta-700 active:scale-95 transition-all"
+          >
+            加入清單
+          </button>
+        </div>
+      </div>
 
-        header p {
-            margin: 5px 0 0;
-            font-size: 0.8rem;
-            opacity: 0.9;
-        }
+      <div className="space-y-3">
+        {isLoading ? (
+          <div className="flex justify-center py-10 text-stone-300">
+            <Loader2 className="animate-spin" />
+          </div>
+        ) : expenses.length === 0 ? (
+          <div className="text-center text-stone-400 py-8 text-sm italic">
+            還沒有消費紀錄，開始買買買吧！
+          </div>
+        ) : (
+          expenses.map(ex => (
+            <div key={ex.id} className="flex justify-between items-center bg-white p-4 rounded-xl border border-stone-100">
+              <div className="flex items-center gap-3">
+                <div className={`w-2 h-8 rounded-full ${
+                  ex.category === '購物' ? 'bg-pink-300' :
+                  ex.category === '美食' ? 'bg-amber-300' :
+                  ex.category === '伴手禮' ? 'bg-purple-300' : 'bg-stone-300'
+                }`}></div>
+                <div>
+                  <div className="font-bold text-gray-800 text-sm">{ex.item}</div>
+                  <div className="text-xs text-stone-400">{ex.category}</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="font-mono font-bold text-gray-600">
+                  {ex.currency === 'EUR' ? '€' : 'AED'} {ex.amount}
+                </span>
+                <button 
+                  onClick={() => handleDeleteExpense(ex.id)}
+                  className="text-stone-300 hover:text-red-400"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
 
-        /* Tabs */
-        .content-section {
-            display: none;
-            padding: 15px;
-            animation: fadeIn 0.3s ease;
-        }
-        .content-section.active {
-            display: block;
-        }
+  const SpotsView = () => (
+    <div className="px-5 pt-6 pb-24 animate-fadeIn">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-serif font-bold text-gray-800 flex items-center gap-2">
+          <MapIcon className="text-terracotta-500" />
+          自由行探索
+        </h2>
+        
+        <button 
+          onClick={copySpotsToGoogleSheetFormat}
+          className="flex items-center gap-1 text-xs bg-green-100 text-green-700 px-3 py-1.5 rounded-full font-bold hover:bg-green-200 transition-colors"
+        >
+          <FileSpreadsheet size={14} /> 匯出 Google 表格
+        </button>
+        
+      </div>
+      
+      <div className="bg-white p-5 rounded-2xl shadow-sm border border-stone-100 mb-8 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-20 h-20 bg-olive-50 rounded-bl-full -mr-8 -mt-8"></div>
+        <h3 className="font-bold text-gray-700 mb-4 text-sm relative z-10">新增口袋名單</h3>
+        <div className="space-y-3 relative z-10">
+          <div className="flex gap-3">
+             <input 
+              type="text" 
+              placeholder="名稱 (如: 私房Gelato)" 
+              className="flex-1 p-3 bg-stone-50 rounded-lg text-sm outline-none"
+              value={newSpot.name}
+              onChange={(e) => setNewSpot({...newSpot, name: e.target.value})}
+            />
+            <select 
+              className="w-1/3 p-3 bg-stone-50 rounded-lg text-sm outline-none"
+              value={newSpot.location}
+              onChange={(e) => setNewSpot({...newSpot, location: e.target.value})}
+            >
+              <option value="">地區</option>
+              <option>米蘭</option>
+              <option>威尼斯</option>
+              <option>佛羅倫斯</option>
+              <option>羅馬</option>
+              <option>其他</option>
+            </select>
+          </div>
+          <input 
+            type="text" 
+            placeholder="Google Maps 連結" 
+            className="w-full p-3 bg-stone-50 rounded-lg text-sm outline-none"
+            value={newSpot.link}
+            onChange={(e) => setNewSpot({...newSpot, link: e.target.value})}
+          />
+          <textarea 
+            placeholder="備註 (必吃口味、拍照角度...)" 
+            className="w-full p-3 bg-stone-50 rounded-lg text-sm outline-none resize-none h-20"
+            value={newSpot.note}
+            onChange={(e) => setNewSpot({...newSpot, note: e.target.value})}
+          />
+          <button 
+            onClick={handleAddSpot}
+            className="w-full bg-olive-600 text-white py-3 rounded-lg font-bold text-sm hover:bg-olive-700 active:scale-95 transition-all"
+          >
+            加入地圖
+          </button>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+         {customSpots.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-10 text-stone-400">
+            <MapPin size={40} className="mb-2 opacity-20" />
+            <span className="text-sm italic">將想去的地方記錄在這裡...</span>
+          </div>
+        ) : (
+          customSpots.map(spot => (
+            <div key={spot.id} className="bg-white p-4 rounded-xl border border-stone-100 shadow-sm relative overflow-hidden">
+              <div className="flex justify-between items-start mb-2">
+                <h4 className="font-bold text-gray-800">{spot.name}</h4>
+                {spot.location && <span className="text-[10px] font-bold uppercase tracking-wider bg-stone-100 text-stone-500 px-2 py-0.5 rounded-full">{spot.location}</span>}
+              </div>
+              <p className="text-xs text-stone-500 mb-3">{spot.note}</p>
+              <div className="flex justify-between items-center border-t border-stone-50 pt-2 mt-2">
+                {spot.link ? (
+                  <a href={spot.link} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-500 flex items-center gap-1">
+                    <Navigation size={12} /> 導航
+                  </a>
+                ) : <span></span>}
+                <button 
+                  onClick={() => handleDeleteSpot(spot.id)}
+                  className="text-stone-300 hover:text-red-400"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="w-full h-screen bg-[#fbf7f0] font-sans text-gray-800 flex justify-center overflow-hidden">
+      <div className="w-full max-w-md h-full bg-[#fbf7f0] relative flex flex-col shadow-2xl">
+        
+        {/* Top App Bar - Simplified if not logged in */}
+        {!isLogin ? (
+          <div className="absolute top-0 w-full h-full z-50 bg-[#fbf7f0]">
+             <LoginView />
+          </div>
+        ) : (
+          <>
+            <div className="bg-[#fbf7f0] px-5 pt-12 pb-2 flex justify-between items-center z-20">
+              <div>
+                <h1 className="font-serif text-2xl font-bold text-terracotta-700">Ciao, Italy! 🇮🇹</h1>
+                <p className="text-xs text-stone-500 font-medium tracking-wide flex items-center gap-1">
+                   <Lock size={10} /> CODE: {tripId}
+                </p>
+              </div>
+              <button 
+                onClick={() => setIsLogin(false)}
+                className="w-8 h-8 rounded-full bg-white border border-stone-200 flex items-center justify-center text-stone-400 shadow-sm"
+              >
+                <Users size={16} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto no-scrollbar scroll-smooth">
+              {activeTab === 'itinerary' && <ItineraryView />}
+              {activeTab === 'expenses' && <ExpensesView />}
+              {activeTab === 'spots' && <SpotsView />}
+            </div>
+
+            <div className="absolute bottom-0 w-full bg-white border-t border-stone-100 px-6 py-3 flex justify-between items-center z-30 shadow-[0_-5px_15px_rgba(0,0,0,0.02)]">
+              <button 
+                onClick={() => setActiveTab('itinerary')}
+                className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'itinerary' ? 'text-terracotta-600' : 'text-stone-300'}`}
+              >
+                <MapPin size={22} className={activeTab === 'itinerary' ? 'fill-current' : ''} />
+                <span className="text-[10px] font-bold">行程</span>
+              </button>
+              
+              <button 
+                onClick={() => setActiveTab('spots')}
+                className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'spots' ? 'text-olive-600' : 'text-stone-300'}`}
+              >
+                <Plus size={24} className={`mb-1 p-0.5 rounded-full border-2 ${activeTab === 'spots' ? 'border-olive-600 bg-olive-50' : 'border-current'}`} />
+              </button>
+
+              <button 
+                onClick={() => setActiveTab('expenses')}
+                className={`flex flex-col items-center gap-1 transition-colors ${activeTab === 'expenses' ? 'text-terracotta-600' : 'text-stone-300'}`}
+              >
+                <Wallet size={22} className={activeTab === 'expenses' ? 'fill-current' : ''} />
+                <span className="text-[10px] font-bold">記帳</span>
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@400;700&display=swap');
+        
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .font-sans { font-family: 'Lato', sans-serif; }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .bg-terracotta-50 { background-color: #fff5f0; }
+        .bg-terracotta-100 { background-color: #ffe4d6; }
+        .bg-terracotta-200 { background-color: #ffcbb0; }
+        .bg-terracotta-300 { background-color: #ffa57e; }
+        .bg-terracotta-400 { background-color: #ff7647; }
+        .bg-terracotta-500 { background-color: #fa531e; }
+        .bg-terracotta-600 { background-color: #db3309; }
+        .bg-terracotta-700 { background-color: #b62208; }
+
+        .text-terracotta-300 { color: #ffa57e; }
+        .text-terracotta-400 { color: #ff7647; }
+        .text-terracotta-500 { color: #fa531e; }
+        .text-terracotta-600 { color: #db3309; }
+        .text-terracotta-700 { color: #b62208; }
+
+        .border-terracotta-200 { border-color: #ffcbb0; }
+        .border-terracotta-300 { border-color: #ffa57e; }
+        .border-terracotta-400 { border-color: #ff7647; }
+        .border-terracotta-600 { border-color: #db3309; }
+
+        .bg-olive-50 { background-color: #f4f7f0; }
+        .bg-olive-100 { background-color: #e5eddc; }
+        .bg-olive-600 { background-color: #5d7a3e; }
+        .bg-olive-700 { background-color: #486030; }
+        .text-olive-600 { color: #5d7a3e; }
+        .text-olive-800 { color: #324422; }
+        .border-olive-200 { border-color: #cddbbf; }
+        .border-olive-600 { border-color: #5d7a3e; }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
         }
-
-        /* Day Cards */
-        .day-card {
-            background: var(--paper);
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            overflow: hidden;
-            border: 1px solid rgba(0,0,0,0.05);
+        .animate-fadeIn {
+          animation: fadeIn 0.4s ease-out forwards;
         }
-
-        .day-header {
-            background: linear-gradient(to right, #fff, #f9f9f9);
-            padding: 15px;
-            border-bottom: 1px dashed #ddd;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-        }
-
-        .day-date {
-            font-family: var(--font-serif);
-            font-weight: bold;
-            color: var(--primary);
-            font-size: 1.1rem;
-        }
-
-        .day-location {
-            font-size: 0.9rem;
-            color: #666;
-            font-weight: 500;
-        }
-
-        .weather-badge {
-            font-size: 0.75rem;
-            background: #E0E1DD;
-            padding: 3px 8px;
-            border-radius: 10px;
-            color: #555;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .day-content {
-            padding: 15px;
-            display: none; /* Collapsed by default */
-        }
-        
-        .day-content.open {
-            display: block;
-        }
-
-        .timeline-item {
-            border-left: 2px solid var(--secondary);
-            padding-left: 15px;
-            margin-bottom: 15px;
-            position: relative;
-        }
-
-        .timeline-item::before {
-            content: '';
-            width: 10px;
-            height: 10px;
-            background: var(--secondary);
-            border-radius: 50%;
-            position: absolute;
-            left: -6px;
-            top: 5px;
-        }
-
-        .section-title {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #999;
-            margin-bottom: 5px;
-            margin-top: 15px;
-        }
-
-        .highlight-tag {
-            display: inline-block;
-            background: var(--accent);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            margin-right: 5px;
-        }
-
-        .shop-tag {
-            background: #E76F51;
-        }
-
-        .scam-alert {
-            background: #ffe5e5;
-            border: 1px solid #ffcccc;
-            color: #cc0000;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            margin-top: 10px;
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-        }
-
-        /* Planner & Wallet */
-        .input-group {
-            margin-bottom: 15px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 0.9rem;
-            color: #555;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-family: var(--font-sans);
-            background: #fff;
-            font-size: 16px; /* Prevents zoom on iOS */
-        }
-
-        button.btn-primary {
-            background: var(--secondary);
-            color: white;
-            border: none;
-            padding: 12px;
-            width: 100%;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .saved-item {
-            background: white;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            border-left: 4px solid var(--accent);
-            position: relative;
-        }
-
-        .delete-btn {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-            color: #aaa;
-            cursor: pointer;
-        }
-
-        /* Survival Card (Allergy) */
-        .survival-card {
-            background: #2B2D42;
-            color: white;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-            margin-bottom: 20px;
-            border: 2px solid var(--accent);
-        }
-        .it-text {
-            font-family: var(--font-serif);
-            font-size: 1.2rem;
-            margin: 10px 0;
-            color: var(--accent);
-        }
-
-        /* Nav Bar */
-        .nav-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: white;
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 0;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-            padding-bottom: max(10px, env(safe-area-inset-bottom));
-        }
-
-        .nav-item {
-            text-align: center;
-            color: #aaa;
-            font-size: 0.7rem;
-            cursor: pointer;
-            flex: 1;
-        }
-
-        .nav-item.active {
-            color: var(--primary);
-        }
-
-        .nav-icon {
-            font-size: 1.4rem;
-            display: block;
-            margin-bottom: 2px;
-        }
-
-    </style>
-</head>
-<body>
-
-<header>
-    <h1>Winter Honeymoon</h1>
-    <p>Italy • 2025/12/05 - 12/14</p>
-</header>
-
-<div id="tab-itinerary" class="content-section active">
-    
-    <div class="day-card" onclick="toggleDay(this)">
-        <div class="day-header">
-            <div>
-                <div class="day-date">Day 1 • 12/05 (五)</div>
-                <div class="day-location">台北 ✈️ 杜拜</div>
-            </div>
-            <div class="weather-badge">✈️ 機上</div>
-        </div>
-        <div class="day-content">
-            <div class="timeline-item">
-                <strong>20:00 集合</strong><br>
-                桃園機場第二航廈 阿聯酋櫃台
-            </div>
-            <div class="timeline-item">
-                <strong>23:35 起飛 (EK367)</strong><br>
-                飛行時間約 9 小時 55 分
-            </div>
-            <p class="section-title">餐食</p>
-            <p>晚餐：機上餐食</p>
-        </div>
+      `}</style>
     </div>
-
-    <div class="day-card" onclick="toggleDay(this)">
-        <div class="day-header">
-            <div>
-                <div class="day-date">Day 2 • 12/06 (六)</div>
-                <div class="day-location">杜拜 ✈️ 米蘭</div>
-            </div>
-            <div class="weather-badge">☁️ 2°C~8°C</div>
-        </div>
-        <div class="day-content">
-            <div class="timeline-item">
-                <strong>13:10 抵達米蘭</strong><br>
-                前往市區觀光，不拉長途車。
-            </div>
-            <div class="timeline-item">
-                <span class="highlight-tag">必看</span> <strong>米蘭大教堂 & 艾曼紐二世迴廊</strong><br>
-                世界第三大教堂，哥德式建築地標。
-            </div>
-            <div class="scam-alert">
-                ⚠️ <strong>防騙提醒：</strong> 廣場上有「幸運繩黨」與「鴿子飼料黨」，請勿讓陌生人將繩子套在手上或接過玉米粒，會被強索費用。
-            </div>
-            <div class="timeline-item">
-                <span class="highlight-tag shop-tag">購物</span> <strong>文藝復興百貨</strong><br>
-                推薦購買：KIKO彩妝 (米蘭品牌)、Bialetti 摩卡壺。
-            </div>
-            <p class="section-title">住宿</p>
-            <p>UNAHOTELS Malpensa (米蘭)</p>
-        </div>
-    </div>
-
-    <div class="day-card" onclick="toggleDay(this)">
-        <div class="day-header">
-            <div>
-                <div class="day-date">Day 3 • 12/07 (日)</div>
-                <div class="day-location">米蘭 ➝ 維洛納</div>
-            </div>
-            <div class="weather-badge">🌤️ 3°C~9°C</div>
-        </div>
-        <div class="day-content">
-            <div class="timeline-item">
-                <span class="highlight-tag">絕美</span> <strong>馬焦雷湖 (Lake Maggiore)</strong><br>
-                義大利第二大湖，特別安排遊船體驗湖光山色。
-            </div>
-            <div class="timeline-item">
-                <strong>維洛納 (Verona)</strong><br>
-                莎士比亞《羅密歐與茱麗葉》故鄉。參觀圓形競技場(外觀)。
-            </div>
-            <div class="timeline-item">
-                <span class="highlight-tag">蜜月</span> <strong>茱麗葉之家</strong><br>
-                記得去摸銅像的右胸許願愛情長久（雖然人很多！）。
-            </div>
-            <p class="section-title">餐食</p>
-            <p>午：西式風味 / 晚：百年教堂披薩風味</p>
-            <p class="section-title">住宿</p>
-            <p>Best Western CTC Hotel Verona</p>
-        </div>
-    </div>
-
-    <div class="day-card" onclick="toggleDay(this)">
-        <div class="day-header">
-            <div>
-                <div class="day-date">Day 4 • 12/08 (一)</div>
-                <div class="day-location">威尼斯 (Venice)</div>
-            </div>
-            <div class="weather-badge">🌫️ 1°C~7°C</div>
-        </div>
-        <div class="day-content">
-            <div class="timeline-item">
-                <span class="highlight-tag">體驗</span> <strong>貢多拉遊船 (Gondola)</strong><br>
-                5人一艘，穿梭水巷。*天氣冷，搭船請戴帽子圍巾。
-            </div>
-            <div class="timeline-item">
-                <strong>聖馬可廣場 & 巷弄散策</strong><br>
-                包含里阿爾托橋。
-            </div>
-            <div class="timeline-item">
-                <span class="highlight-tag shop-tag">自由時間</span> <strong>單飛時光</strong><br>
-                推薦：Caffè Florian (世界最老咖啡館，稍貴但氣氛好)。<br>
-                伴手禮：威尼斯面具 (找Papier Mâché材質)、玻璃製品(需有Murano認證)。
-            </div>
-            <div class="scam-alert">
-                ⚠️ <strong>注意：</strong> 威尼斯禁止在橋上拖行大型行李。小心橋上扒手。
-            </div>
-            <p class="section-title">餐食</p>
-            <p>午：墨魚麵佐炸海鮮 / 晚：自理 (推薦嘗試 Cichèti 小食)</p>
-            <p class="section-title">住宿</p>
-            <p>Crowne Plaza Padova</p>
-        </div>
-    </div>
-
-    <div class="day-card" onclick="toggleDay(this)">
-        <div class="day-header">
-            <div>
-                <div class="day-date">Day 5 • 12/09 (二)</div>
-                <div class="day-location">佛羅倫斯</div>
-            </div>
-            <div class="weather-badge">🌤️ 2°C~11°C</div>
-        </div>
-        <div class="day-content">
-            <div class="timeline-item">
-                <strong>市區觀光</strong><br>
-                聖母百花大教堂、領主廣場。文藝復興發源地。
-            </div>
-            <div class="timeline-item">
-                <span class="highlight-tag shop-tag">必買</span> <strong>蕾莉歐 (L'Erbolario)</strong><br>
-                百花大教堂旁有專賣店，價格約台灣3-5折。
-            </div>
-             <div class="timeline-item">
-                <span class="highlight-tag shop-tag">皮件</span> <strong>Santa Croce 區</strong><br>
-                佛羅倫斯以皮件聞名，若要買真皮手套/包包可在此尋寶。
-            </div>
-            <p class="section-title">餐食</p>
-            <p>午：丁骨牛排佐紅酒 (不吃牛請提前告知領隊) / 晚：中式料理</p>
-            <p class="section-title">住宿</p>
-            <p>Grand Hotel Croce Di Malta</p>
-        </div>
-    </div>
-
-    <div class="day-card" onclick="toggleDay(this)">
-        <div class="day-header">
-            <div>
-                <div class="day-date">Day 6 • 12/10 (三)</div>
-                <div class="day-location">五漁村 & 比薩</div>
-            </div>
-            <div class="weather-badge">🌊 5°C~12°C</div>
-        </div>
-        <div class="day-content">
-            <div class="timeline-item">
-                <strong>五漁村 (Cinque Terre)</strong><br>
-                搭火車進入，拜訪其中兩個村落。懸崖邊的彩色小屋。
-            </div>
-            <div class="timeline-item">
-                <strong>比薩斜塔 (Pisa)</strong><br>
-                奇蹟廣場建築群。必拍推塔借位照。
-            </div>
-            <div class="scam-alert">
-                ⚠️ <strong>比薩提醒：</strong> 攤販周邊扒手極多，拍照時包包務必背在胸前。
-            </div>
-            <p class="section-title">餐食</p>
-            <p>午：自理 (可買炸海鮮甜筒) / 晚：中式料理</p>
-            <p class="section-title">住宿</p>
-            <p>AC Hotel Pisa</p>
-        </div>
-    </div>
-
-    <div class="day-card" onclick="toggleDay(this)">
-        <div class="day-header">
-            <div>
-                <div class="day-date">Day 7 • 12/11 (四)</div>
-                <div class="day-location">托斯卡尼 ➝ 羅馬</div>
-            </div>
-            <div class="weather-badge">🍇 3°C~10°C</div>
-        </div>
-        <div class="day-content">
-            <div class="timeline-item">
-                <span class="highlight-tag">微醺</span> <strong>酒莊品酒 (Winery)</strong><br>
-                Montepulciano 地區，品嚐舉世聞名的紅酒。
-            </div>
-            <div class="timeline-item">
-                <strong>皮恩薩 (Pienza)</strong><br>
-                教宗的理想城，也是「起司之城」(Pecorino Cheese)。
-            </div>
-            <div class="timeline-item">
-                <strong>前往羅馬</strong>
-            </div>
-            <p class="section-title">餐食</p>
-            <p>午：西式風味 / 晚：中式料理</p>
-            <p class="section-title">住宿</p>
-            <p>Warmthotel Rome (連住兩晚)</p>
-        </div>
-    </div>
-
-    <div class="day-card" onclick="toggleDay(this)">
-        <div class="day-header">
-            <div>
-                <div class="day-date">Day 8 • 12/12 (五)</div>
-                <div class="day-location">羅馬 (Rome)</div>
-            </div>
-            <div class="weather-badge">🏛️ 5°C~13°C</div>
-        </div>
-        <div class="day-content">
-            <div class="timeline-item">
-                <strong>聖彼得大教堂 (梵蒂岡)</strong><br>
-                *注意服裝：不可穿無袖、短裙(冬天應該還好)。
-            </div>
-            <div class="timeline-item">
-                <span class="highlight-tag">贈送</span> <strong>金杯咖啡 (Tazza d'Oro)</strong><br>
-                就在萬神殿旁。必買：咖啡豆 (La Regina)、咖啡豆巧克力。
-            </div>
-            <div class="timeline-item">
-                <strong>市區觀光</strong><br>
-                許願池 (背對丟硬幣)、西班牙廣場 (羅馬假期場景)、鬥獸場 (外觀)。
-            </div>
-             <div class="scam-alert">
-                ⚠️ <strong>羅馬三大騙：</strong> 1.手環黨 2.裝成古羅馬士兵強迫合照收費 3.假好心幫你買地鐵票。
-            </div>
-            <p class="section-title">餐食</p>
-            <p>午：中式料理 / 晚：羅馬小羔羊風味</p>
-        </div>
-    </div>
-
-    <div class="day-card" onclick="toggleDay(this)">
-        <div class="day-header">
-            <div>
-                <div class="day-date">Day 9 • 12/13 (六)</div>
-                <div class="day-location">羅馬 ✈️ 杜拜</div>
-            </div>
-            <div class="weather-badge">🛍️ 最後衝刺</div>
-        </div>
-        <div class="day-content">
-            <div class="timeline-item">
-                <span class="highlight-tag shop-tag">Outlet</span> <strong>Castel Romano Outlet</strong><br>
-                登機前的最後購物，包含 Burberry, Valentino, Ferragamo 等。
-            </div>
-            <div class="timeline-item">
-                <strong>14:55 起飛 (EK098)</strong><br>
-                前往杜拜轉機。
-            </div>
-            <p class="section-title">退稅提醒</p>
-            <p>請將退稅商品放在好拿的地方（可能需海關檢查）。單筆滿155歐元可退稅。</p>
-        </div>
-    </div>
-
-     <div class="day-card" onclick="toggleDay(this)">
-        <div class="day-header">
-            <div>
-                <div class="day-date">Day 10 • 12/14 (日)</div>
-                <div class="day-location">杜拜 ✈️ 台北</div>
-            </div>
-            <div class="weather-badge">🏠 溫暖的家</div>
-        </div>
-        <div class="day-content">
-            <div class="timeline-item">
-                <strong>15:35 抵達桃園</strong><br>
-                帶著滿滿的回憶與戰利品回家。
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="tab-planner" class="content-section">
-    <h2 style="font-family: var(--font-serif); color: var(--primary);">My Planner</h2>
-    <p style="font-size:0.9rem; color:#666;">記錄想去的自由行景點或餐廳</p>
-    
-    <div class="day-card" style="padding:15px;">
-        <div class="input-group">
-            <label>區域 (如: 米蘭, 威尼斯)</label>
-            <select id="plan-area">
-                <option value="米蘭">米蘭 (Milan)</option>
-                <option value="威尼斯">威尼斯 (Venice)</option>
-                <option value="佛羅倫斯">佛羅倫斯 (Florence)</option>
-                <option value="羅馬">羅馬 (Rome)</option>
-                <option value="其他">其他</option>
-            </select>
-        </div>
-        <div class="input-group">
-            <label>地點名稱</label>
-            <input type="text" id="plan-name" placeholder="例如: 老橋, 某某餐廳">
-        </div>
-        <div class="input-group">
-            <label>備註 / Google Map 連結</label>
-            <textarea id="plan-note" rows="2" placeholder="貼上網址或筆記..."></textarea>
-        </div>
-        <button class="btn-primary" onclick="addPlan()">加入清單</button>
-    </div>
-
-    <div id="plan-list">
-        </div>
-</div>
-
-<div id="tab-wallet" class="content-section">
-    <h2 style="font-family: var(--font-serif); color: var(--primary);">Tools & Guide</h2>
-    
-    <div class="survival-card">
-        <h3>🚨 過敏溝通卡</h3>
-        <p>點餐時請出示此畫面給服務生</p>
-        <hr style="border:0.5px solid #555; margin: 15px 0;">
-        <p class="it-text">"Sono allergica al grano, alle uova e ai latticini."</p>
-        <p>(我對小麥、雞蛋和乳製品過敏)</p>
-        <p style="font-size: 0.9rem; margin-top:10px; color:#F4A261;">
-            Senza Glutine (無麩質)<br>
-            Senza Uova (無蛋)<br>
-            Senza Latticini (無奶)
-        </p>
-    </div>
-
-    <div class="day-card" style="padding:15px;">
-        <h3>💰 記帳小幫手</h3>
-        <p style="font-size:0.9rem; margin-bottom:15px;">
-            建立一個 Google Form (包含: 金額, 幣別, 類別, 品項)，將連結貼在下方即可快速記帳。
-        </p>
-        <div class="input-group">
-            <input type="text" id="sheet-url" placeholder="貼上您的 Google Form 連結">
-        </div>
-        <button class="btn-primary" onclick="openExpense()">記一筆</button>
-    </div>
-
-    <div class="day-card" style="padding:15px;">
-        <h3>🛍️ 必買清單</h3>
-        <ul style="padding-left: 20px; line-height: 1.6;">
-            <li><strong>超市好物：</strong>Pocket Coffee (爆漿咖啡巧克力)、Baci 巧克力、Marvis 牙膏、Balsamic Vinegar (紅酒醋)。</li>
-            <li><strong>佛羅倫斯：</strong>皮件 (手套、皮夾)、蕾莉歐 (L'Erbolario)。</li>
-            <li><strong>羅馬：</strong>金杯咖啡豆 (Chicchi di caffè)、金杯巧克力。</li>
-            <li><strong>威尼斯：</strong>彩色島蕾絲、Murano 玻璃。</li>
-        </ul>
-    </div>
-</div>
-
-<div class="nav-bar">
-    <div class="nav-item active" onclick="switchTab('itinerary', this)">
-        <span class="nav-icon">📅</span>
-        行程
-    </div>
-    <div class="nav-item" onclick="switchTab('planner', this)">
-        <span class="nav-icon">📍</span>
-        自由行
-    </div>
-    <div class="nav-item" onclick="switchTab('wallet', this)">
-        <span class="nav-icon">🧳</span>
-        百寶箱
-    </div>
-</div>
-
-<script>
-    // Tab Switching
-    function switchTab(tabId, navElement) {
-        document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
-        document.getElementById('tab-' + tabId).classList.add('active');
-        
-        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-        navElement.classList.add('active');
-    }
-
-    // Toggle Day Details
-    function toggleDay(card) {
-        const content = card.querySelector('.day-content');
-        if (content.style.display === "block") {
-            content.style.display = "none";
-        } else {
-            content.style.display = "block";
-        }
-    }
-
-    // Planner Logic (Local Storage)
-    function loadPlans() {
-        const plans = JSON.parse(localStorage.getItem('italy_plans') || '[]');
-        const container = document.getElementById('plan-list');
-        container.innerHTML = '';
-        
-        if (plans.length === 0) {
-            container.innerHTML = '<p style="text-align:center; color:#999; margin-top:20px;">尚無行程，快來新增吧！</p>';
-            return;
-        }
-
-        plans.forEach((plan, index) => {
-            const div = document.createElement('div');
-            div.className = 'saved-item';
-            
-            // Check if note is a URL
-            let noteDisplay = plan.note;
-            if(plan.note.includes('http')) {
-                noteDisplay = `<a href="${plan.note}" target="_blank" style="color:var(--primary);">開啟連結/地圖</a>`;
-            }
-
-            div.innerHTML = `
-                <div class="delete-btn" onclick="deletePlan(${index})">✕</div>
-                <div style="font-weight:bold; color:var(--primary);">${plan.area}</div>
-                <div style="font-size:1.1rem; margin:5px 0;">${plan.name}</div>
-                <div style="font-size:0.9rem; color:#666;">${noteDisplay}</div>
-            `;
-            container.appendChild(div);
-        });
-    }
-
-    function addPlan() {
-        const area = document.getElementById('plan-area').value;
-        const name = document.getElementById('plan-name').value;
-        const note = document.getElementById('plan-note').value;
-
-        if (!name) {
-            alert('請輸入地點名稱');
-            return;
-        }
-
-        const plans = JSON.parse(localStorage.getItem('italy_plans') || '[]');
-        plans.push({ area, name, note });
-        localStorage.setItem('italy_plans', JSON.stringify(plans));
-        
-        document.getElementById('plan-name').value = '';
-        document.getElementById('plan-note').value = '';
-        loadPlans();
-    }
-
-    function deletePlan(index) {
-        if(confirm('確定刪除此行程？')) {
-            const plans = JSON.parse(localStorage.getItem('italy_plans') || '[]');
-            plans.splice(index, 1);
-            localStorage.setItem('italy_plans', JSON.stringify(plans));
-            loadPlans();
-        }
-    }
-
-    // Expense Logic
-    function openExpense() {
-        let url = document.getElementById('sheet-url').value;
-        if (!url) {
-            // Check local storage for previously saved URL
-            url = localStorage.getItem('expense_url');
-        }
-
-        if (!url) {
-            alert('請先貼上您的 Google Form 或 Sheet 連結！');
-            return;
-        }
-
-        // Save for next time
-        localStorage.setItem('expense_url', url);
-        window.open(url, '_blank');
-    }
-
-    // Init
-    document.addEventListener('DOMContentLoaded', () => {
-        loadPlans();
-        const savedUrl = localStorage.getItem('expense_url');
-        if(savedUrl) {
-            document.getElementById('sheet-url').value = savedUrl;
-        }
-    });
-</script>
-
-</body>
-</html>
+  );
+}
