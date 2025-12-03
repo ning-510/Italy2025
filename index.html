@@ -39,7 +39,7 @@
         body { background-color: #fbf7f0; overflow: hidden; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
-        .content-area { padding-bottom: 80px; }
+        .content-area { padding-bottom: 140px; }
     </style>
 </head>
 <body>
@@ -86,7 +86,8 @@
             Gift: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect width="20" height="5" x="2" y="7"/><line x1="12" x2="12" y1="22" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>,
             CheckCircle2: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>,
             Compass: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>,
-            Trophy: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+            Trophy: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>,
+            Utensils: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
         };
 
         // --- 程式邏輯 ---
@@ -137,6 +138,18 @@
                     },
                     { time: "下午", type: "spot", title: "米蘭大教堂 (Duomo)", desc: "世界第三大教堂，白色大理石哥德式建築，外觀雄偉典雅。", link: "https://www.google.com/maps/search/?api=1&query=Duomo+di+Milano" },
                     { time: "下午", type: "spot", title: "艾曼紐二世迴廊", desc: "米蘭的大客廳，時尚名牌聚集地。踩金牛座公牛蛋蛋據說會帶來好運！", link: "https://www.google.com/maps/search/?api=1&query=Galleria+Vittorio+Emanuele+II" },
+                    
+                    // --- 新增美食推薦 ---
+                    { 
+                        type: "recommendation", 
+                        title: "🍽️ 推薦在地美食 (自理餐)", 
+                        items: [
+                            { name: "Luini", desc: "米蘭必吃炸起司餡餅 (Panzerotti)，便宜美味。", link: "https://www.google.com/maps/search/?api=1&query=Luini+Milano" },
+                            { name: "Spontini", desc: "超厚切披薩，起司牽絲，份量十足。", link: "https://www.google.com/maps/search/?api=1&query=Pizzeria+Spontini+Duomo" },
+                            { name: "Cioccolatitaliani", desc: "大教堂旁超厲害的巧克力冰淇淋。", link: "https://www.google.com/maps/search/?api=1&query=Cioccolatitaliani+Milano+Duomo" }
+                        ]
+                    },
+
                     { time: "晚餐", type: "food", title: "米蘭燉飯風味料理", desc: "道地番紅花燉飯" },
                 ],
                 stay: "UNAHOTELS MALPENSA",
@@ -178,6 +191,18 @@
                     { time: "體驗", type: "spot", title: "貢多拉鳳尾船 (Gondola)", desc: "五人一艘，穿梭水巷感受浪漫氛圍。" },
                     { time: "午餐", type: "food", title: "威尼斯墨魚麵佐炸海鮮", desc: "經典必吃，吃完嘴巴會黑黑的喔！" },
                     { time: "下午", type: "free", title: "單飛時光", desc: "自由探索威尼斯小店或享用下午茶" },
+                    
+                    // --- 新增美食推薦 ---
+                    { 
+                        type: "recommendation", 
+                        title: "🍽️ 推薦在地美食 (自理餐)", 
+                        items: [
+                            { name: "Dal Moro's", desc: "人氣第一 Fresh Pasta to go，墨魚麵是招牌。", link: "https://www.google.com/maps/search/?api=1&query=Dal+Moro's+Fresh+Pasta+to+Go" },
+                            { name: "Suso Gelato", desc: "威尼斯網紅冰淇淋，口味特殊且裝飾華麗，必打卡！", link: "https://www.google.com/maps/search/?api=1&query=Suso+Gelatoteca" },
+                            { name: "Antico Forno", desc: "評價極高的切片披薩，餅皮酥脆。", link: "https://www.google.com/maps/search/?api=1&query=Antico+Forno+Venezia" }
+                        ]
+                    },
+
                     { time: "晚上", type: "transport", title: "前往帕多瓦", desc: "約 46KM 車程" }
                 ],
                 stay: "CROWNE PLAZA PADOVA",
@@ -212,6 +237,18 @@
                 itinerary: [
                     { time: "上午", type: "transport", title: "前往五漁村 (Cinque Terre)", desc: "搭乘火車遊覽懸崖上的繽紛小鎮。" },
                     { time: "活動", type: "spot", title: "五漁村巡禮", desc: "拜訪其中兩個漁村，欣賞地中海美景與彩色房舍。", link: "https://www.google.com/maps/search/?api=1&query=Cinque+Terre" },
+                    
+                    // --- 新增美食推薦 ---
+                    { 
+                        type: "recommendation", 
+                        title: "🍽️ 推薦在地美食 (自理餐)", 
+                        items: [
+                            { name: "Il Bocconcino", desc: "Monterosso 車站旁，必吃炸海鮮杯 (Fritto Misto)！", link: "https://www.google.com/maps/search/?api=1&query=Il+Bocconcino+Monterosso" },
+                            { name: "Focaccia", desc: "利古里亞大區特產佛卡夏麵包，隨便一家都好吃。", link: "" },
+                            { name: "Gelateria Vernazza", desc: "如果在Vernazza，這家冰淇淋很棒。", link: "https://www.google.com/maps/search/?api=1&query=Gelateria+Vernazza" }
+                        ]
+                    },
+
                     { time: "下午", type: "transport", title: "前往比薩 (Pisa)", desc: "約 87KM 車程" },
                     { time: "下午", type: "spot", title: "比薩斜塔 & 奇蹟廣場", desc: "世界遺產，必拍推塔照。", link: "https://www.google.com/maps/search/?api=1&query=Leaning+Tower+of+Pisa" },
                 ],
@@ -263,6 +300,17 @@
                 highlights: ["Designer Outlet", "滿載而歸"],
                 itinerary: [
                     { time: "上午", type: "spot", title: "Castel Romano Designer Outlet", desc: "羅馬近郊大型Outlet，Gucci, Burberry, Ferragamo 等品牌。", link: "https://www.google.com/maps/search/?api=1&query=Castel+Romano+Designer+Outlet" },
+                    
+                    // --- 新增美食推薦 ---
+                    { 
+                        type: "recommendation", 
+                        title: "🍽️ 推薦在地美食 (自理餐)", 
+                        items: [
+                            { name: "Farinella", desc: "Outlet 內的拿坡里餐廳，披薩和義大利麵都不錯。", link: "https://www.google.com/maps/search/?api=1&query=Farinella+Castel+Romano" },
+                            { name: "Spizzico", desc: "快速解決一餐的好選擇，類似速食版義式料理。", link: "" }
+                        ]
+                    },
+
                     { time: "下午", type: "transport", title: "前往羅馬達文西機場", desc: "辦理退稅與登機手續" },
                     { 
                         type: "flight", 
@@ -411,6 +459,32 @@
                         <span>{event.timeStr}</span>
                     </div>
                     <p className="text-sm text-gray-400 italic border-l-2 border-racing-red pl-3">{event.desc}</p>
+                </div>
+            </div>
+        );
+
+        const RecommendationCard = ({ items }) => (
+            <div className="bg-orange-50 rounded-xl border border-orange-100 overflow-hidden mb-4">
+                <div className="bg-orange-100 px-4 py-2 flex items-center gap-2 text-orange-800 font-bold">
+                    <Icons.Utensils size={16} />
+                    <span>推薦在地美食 (自理餐)</span>
+                </div>
+                <div className="p-3 space-y-3">
+                    {items.map((item, idx) => (
+                        <div key={idx} className="flex justify-between items-start pb-2 border-b border-orange-100 last:border-0 last:pb-0">
+                            <div>
+                                <div className="font-bold text-stone-800 flex items-center gap-2">
+                                    {item.name}
+                                    {item.link && (
+                                        <a href={item.link} target="_blank" className="text-orange-500 hover:text-orange-700">
+                                            <Icons.ExternalLink size={12} />
+                                        </a>
+                                    )}
+                                </div>
+                                <p className="text-xs text-stone-600 mt-0.5">{item.desc}</p>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
         );
@@ -579,7 +653,10 @@
                                     <div className="sticky top-0 z-10 bg-[#fbf7f0] pt-2 pb-3 shadow-sm border-b border-stone-200 overflow-x-auto whitespace-nowrap px-4 no-scrollbar">
                                         <div className="flex gap-3">
                                             {tripData.map((d) => (
-                                                <button key={d.day} onClick={() => setCurrentDay(d.day)} className={`flex flex-col items-center justify-center min-w-[4.5rem] h-16 rounded-xl transition-all duration-300 border-2 ${currentDay === d.day ? "bg-terracotta-600 border-terracotta-600 text-white shadow-md transform scale-105" : "bg-white border-stone-200 text-stone-500 hover:border-terracotta-300"}`}><span className="text-xs font-medium uppercase tracking-wider">Day</span><span className="text-xl font-serif font-bold">{d.day}</span></button>
+                                                <button key={d.day} onClick={() => setCurrentDay(d.day)} className={`flex flex-col items-center justify-center min-w-[4.5rem] h-16 rounded-xl transition-all duration-300 border-2 ${currentDay === d.day ? "bg-terracotta-600 border-terracotta-600 text-white shadow-md transform scale-105" : "bg-white border-stone-200 text-stone-500 hover:border-terracotta-300"}`}>
+                                                    <span className="text-[10px] font-medium uppercase tracking-wider opacity-80">Day {d.day}</span>
+                                                    <span className={`text-sm font-bold ${currentDay === d.day ? 'text-white' : 'text-stone-600'}`}>{d.date.split(' ')[0]}</span>
+                                                </button>
                                             ))}
                                         </div>
                                     </div>
@@ -600,6 +677,8 @@
                                                         <FlightCard flight={item} />
                                                     ) : item.type === 'f1' ? (
                                                         <F1Card event={item} />
+                                                    ) : item.type === 'recommendation' ? (
+                                                        <RecommendationCard items={item.items} />
                                                     ) : (
                                                         <div className="flex gap-4 group">
                                                             <div className="flex flex-col items-center"><div className={`w-3 h-3 rounded-full border-2 z-10 ${item.type === 'transport' ? 'bg-stone-200 border-stone-300' : item.type === 'food' ? 'bg-amber-100 border-amber-300' : 'bg-terracotta-100 border-terracotta-400'}`}></div>{idx !== dayData.itinerary.length - 1 && <div className="w-0.5 h-full bg-stone-100 -mt-1"></div>}</div>
@@ -647,9 +726,9 @@
                             )}
                             {activeTab === 'spots' && (
                                 <div className="px-5 pt-6 animate-fadeIn">
-                                    <div className="flex justify-between items-center mb-6"><h2 className="text-2xl font-serif font-bold text-gray-800 flex items-center gap-2"><Icons.MapIcon className="text-terracotta-500" /> 自由行探索</h2><button onClick={copySpotsToGoogleSheetFormat} className="flex items-center gap-1 text-xs bg-green-100 text-green-700 px-3 py-1.5 rounded-full font-bold hover:bg-green-200 transition-colors"><Icons.FileSpreadsheet size={14} /> 匯出</button></div>
+                                    <div className="flex justify-between items-center mb-6"><h2 className="text-2xl font-serif font-bold text-gray-800 flex items-center gap-2"><Icons.Compass className="text-terracotta-500" /> 自由行探索</h2><button onClick={copySpotsToGoogleSheetFormat} className="flex items-center gap-1 text-xs bg-green-100 text-green-700 px-3 py-1.5 rounded-full font-bold hover:bg-green-200 transition-colors"><Icons.FileSpreadsheet size={14} /> 匯出</button></div>
                                     <div className="bg-white p-5 rounded-2xl shadow-sm border border-stone-100 mb-8 relative overflow-hidden"><div className="absolute top-0 right-0 w-20 h-20 bg-olive-50 rounded-bl-full -mr-8 -mt-8"></div><h3 className="font-bold text-gray-700 mb-4 text-sm relative z-10">新增口袋名單</h3><div className="space-y-3 relative z-10"><div className="flex gap-3"><input type="text" placeholder="名稱" className="flex-1 p-3 bg-stone-50 rounded-lg text-sm outline-none" value={newSpot.name} onChange={(e) => setNewSpot({...newSpot, name: e.target.value})} /><select className="w-1/3 p-3 bg-stone-50 rounded-lg text-sm outline-none" value={newSpot.location} onChange={(e) => setNewSpot({...newSpot, location: e.target.value})}><option value="">地區</option><option>米蘭</option><option>威尼斯</option><option>佛羅倫斯</option><option>羅馬</option><option>其他</option></select></div><input type="text" placeholder="Google Maps 連結" className="w-full p-3 bg-stone-50 rounded-lg text-sm outline-none" value={newSpot.link} onChange={(e) => setNewSpot({...newSpot, link: e.target.value})} /><textarea placeholder="備註" className="w-full p-3 bg-stone-50 rounded-lg text-sm outline-none resize-none h-20" value={newSpot.note} onChange={(e) => setNewSpot({...newSpot, note: e.target.value})} /><button onClick={handleAddSpot} className="w-full bg-olive-600 text-white py-3 rounded-lg font-bold text-sm hover:bg-olive-700 active:scale-95 transition-all">加入地圖</button></div></div>
-                                    <div className="space-y-4">{customSpots.length === 0 ? <div className="flex flex-col items-center justify-center py-10 text-stone-400"><Icons.MapIcon size={40} className="mb-2 opacity-20" /><span className="text-sm italic">將想去的地方記錄在這裡...</span></div> : customSpots.map(spot => (<div key={spot.id} className="bg-white p-4 rounded-xl border border-stone-100 shadow-sm relative overflow-hidden"><div className="flex justify-between items-start mb-2"><h4 className="font-bold text-gray-800">{spot.name}</h4>{spot.location && <span className="text-[10px] font-bold uppercase tracking-wider bg-stone-100 text-stone-500 px-2 py-0.5 rounded-full">{spot.location}</span>}</div><p className="text-xs text-stone-500 mb-3">{spot.note}</p><div className="flex justify-between items-center border-t border-stone-50 pt-2 mt-2">{spot.link ? (<a href={spot.link} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-500 flex items-center gap-1"><Icons.Navigation size={12} /> 導航</a>) : <span></span>}</div></div>))}</div>
+                                    <div className="space-y-4">{customSpots.length === 0 ? <div className="flex flex-col items-center justify-center py-10 text-stone-400"><Icons.Compass size={40} className="mb-2 opacity-20" /><span className="text-sm italic">將想去的地方記錄在這裡...</span></div> : customSpots.map(spot => (<div key={spot.id} className="bg-white p-4 rounded-xl border border-stone-100 shadow-sm relative overflow-hidden"><div className="flex justify-between items-start mb-2"><h4 className="font-bold text-gray-800">{spot.name}</h4>{spot.location && <span className="text-[10px] font-bold uppercase tracking-wider bg-stone-100 text-stone-500 px-2 py-0.5 rounded-full">{spot.location}</span>}</div><p className="text-xs text-stone-500 mb-3">{spot.note}</p><div className="flex justify-between items-center border-t border-stone-50 pt-2 mt-2">{spot.link ? (<a href={spot.link} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-500 flex items-center gap-1"><Icons.Navigation size={12} /> 導航</a>) : <span></span>}</div></div>))}</div>
                                 </div>
                             )}
                             {activeTab === 'shopping' && (
